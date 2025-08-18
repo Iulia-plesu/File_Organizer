@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Organizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .button {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .file-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-info {
+            flex-grow: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .file-meta {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+
+        .category-images { background: #ffebee; color: #c62828; }
+        .category-documents { background: #e3f2fd; color: #1565c0; }
+        .category-videos { background: #f3e5f5; color: #7b1fa2; }
+        .category-audio { background: #e8f5e8; color: #2e7d32; }
+        .category-archives { background: #fff3e0; color: #ef6c00; }
+        .category-others { background: #f5f5f5; color: #616161; }
+
+        .summary-item {
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .summary-timestamp {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .summary-action {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .summary-description {
+            font-style: italic;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 File Organizer</h1>
+        
+        <div class="card">
+            <div class="section-title">Statistics</div>
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-organized">-</span>
+                    <span class="stat-label">Organized Files</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="unorganized">-</span>
+                    <span class="stat-label">Unorganized Files</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="total-operations">-</span>
+                    <span class="stat-label">Total Operations</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Actions</div>
+            <button class="button" onclick="organizeAllFiles()" id="organize-btn">
+                🚀 Organize All Files
+            </button>
+            <button class="button" onclick="refreshData()">
+                🔄 Refresh Data
+            </button>
+            <button class="button" onclick="loadSummary()">
+                📋 View Summary
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Unorganized Files</div>
+            <div id="files-container">
+                <p>Loading files...</p>
+            </div>
+        </div>
+
+        <div class="card" id="summary-card" style="display: none;">
+            <div class="section-title">Recent Activity</div>
+            <div id="summary-container">
+                <p>No activity yet.</p>
+            </div>
+        </div>
+
+        <div id="message-container"></div>
+    </div>
+
+    <script>
+        let currentFiles = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+        });
+
+        // Refresh all data
+        function refreshData() {
+            loadStats();
+            loadFiles();
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                document.getElementById('total-organized').textContent = data.total_organized;
+                document.getElementById('unorganized').textContent = data.unorganized;
+                document.getElementById('total-operations').textContent = data.total_operations;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                showMessage('Error loading statistics: ' + error.message, 'error');
+            }
+        }
+
+        // Load files list
+        async function loadFiles() {
+            try {
+                const response = await fetch('/files');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                currentFiles = data.files;
+                displayFiles(data.files);
+                
+            } catch (error) {
+                console.error('Error loading files:', error);
+                document.getElementById('files-container').innerHTML = 
+                    '<p class="error-message">Error loading files: ' + error.message + '</p>';
+            }
+        }
+
+        // Display files in the UI
+        function displayFiles(files) {
+            const container = document.getElementById('files-container');
+            
+            if (files.length === 0) {
+                container.innerHTML = '<p>No files to organize! 🎉</p>';
+                return;
+            }
+
+            const fileList = document.createElement('div');
+            fileList.className = 'file-list';
+            
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'file-info';
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.name;
+                
+                const fileMeta = document.createElement('div');
+                fileMeta.className = 'file-meta';
+                fileMeta.textContent = `${formatFileSize(file.size)} • Modified: ${formatDate(file.modified)}`;
+                
+                const categoryTag = document.createElement('span');
+                categoryTag.className = `category-tag category-${file.category}`;
+                categoryTag.textContent = file.category;
+                
+                const organizeBtn = document.createElement('button');
+                organizeBtn.className = 'button';
+                organizeBtn.textContent = '📁 Organize';
+                organizeBtn.onclick = () => organizeSingleFile(file.name, organizeBtn);
+                
+                fileInfo.appendChild(fileName);
+                fileInfo.appendChild(fileMeta);
+                
+                fileItem.appendChild(fileInfo);
+                fileItem.appendChild(categoryTag);
+                fileItem.appendChild(organizeBtn);
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(fileList);
+        }
+
+        // Organize all files
+        async function organizeAllFiles() {
+            const btn = document.getElementById('organize-btn');
+            btn.disabled = true;
+            btn.innerHTML = '🚀 Organizing... <div class="loading"></div>';
+            
+            try {
+                const response = await fetch('/organize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                let message = `Successfully organized ${data.organized_count} files! 🎉`;
+                if (data.errors.length > 0) {
+                    message += `\n\nErrors:\n${data.errors.join('\n')}`;
+                }
+                
+                showMessage(message, data.errors.length > 0 ? 'error' : 'success');
+                refreshData();
+                
+            } catch (error) {
+                console.error('Error organizing files:', error);
+                showMessage('Error organizing files: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🚀 Organize All Files';
+            }
+        }
+
+        // Organize single file
+        async function organizeSingleFile(filename, button) {
+            button.disabled = true;
+            button.innerHTML = '📁 Organizing... <div class="loading"></div>';
+            
+            try {
+                const response = await fetch(`/organize/${encodeURIComponent(filename)}`, {
+                    method: 'POST',
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+                
+                showMessage(`Successfully organized "${filename}" 🎉`, 'success');
+                refreshData();
+                
+            } catch (error) {
+                console.error('Error organizing file:', error);
+                showMessage('Error organizing file: ' + error.message, 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '📁 Organize';
+            }
+        }
+
+        // Load and display summary
+        async function loadSummary() {
+            try {
+                const response = await fetch('/summary?limit=10');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                displaySummary(data.summary);
+                document.getElementById('summary-card').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading summary:', error);
+                showMessage('Error loading summary: ' + error.message, 'error');
+            }
+        }
+
+        // Display summary
+        function displaySummary(summary) {
+            const container = document.getElementById('summary-container');
+            
+            if (summary.length === 0) {
+                container.innerHTML = '<p>No activity yet.</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            summary.forEach(item => {
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                
+                const timestamp = document.createElement('div');
+                timestamp.className = 'summary-timestamp';
+                timestamp.textContent = formatDate(item.timestamp);
+                
+                const action = document.createElement('div');
+                action.className = 'summary-action';
+                action.textContent = `${item.original_name} → ${item.new_name}`;
+                
+                const description = document.createElement('div');
+                description.className = 'summary-description';
+                description.textContent = item.ai_description;
+                
+                summaryItem.appendChild(timestamp);
+                summaryItem.appendChild(action);
+                summaryItem.appendChild(description);
+                
+                container.appendChild(summaryItem);
+            });
+        }
+
+        // Show message
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('message-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+            
+            container.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                container.removeChild(messageDiv);
+            }, 5000);
+        }
+
+        // Utility functions
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleString();
+        }
+    </script>
+</body>
+</html>
