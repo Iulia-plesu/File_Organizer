@@ -13,7 +13,17 @@ File Organizer is a smart, AI-powered tool to automatically sort, categorize, an
 
 ## 🖥️ How to Run Locally
 1. Make sure you have Python 3.11+ installed
-2. Install dependencies:
+2. Create and activate a virtual environment:
+   ```powershell
+   # Create a new virtual environment
+   python -m venv venv
+   
+   # Activate the virtual environment
+   .\venv\Scripts\Activate
+   
+   # You should see (venv) in your terminal prompt
+   ```
+3. Install dependencies:
    ```powershell
    pip install -r requirements.txt
    ```
@@ -57,4 +67,3 @@ After:  images_peter_herrmann_unsplash.jpg
 ## ⚙️ Environment Variables
 - `DOWNLOADS_PATH`: Path to your downloads folder
 - `GEMINI_API_KEY`: Your Gemini API key for AI features
-
