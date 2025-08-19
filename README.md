@@ -1,6 +1,17 @@
 # File Organizer
 
-File Organizer is a smart, AI-powered tool to automatically sort, categorize, and describe your downloaded files. It moves files into organized folders, generates insightful summaries, and provides a beautiful web dashboard for easy management.
+## 🚀 Overview
+File Organizer is an intelligent file management system designed to bring order to your cluttered downloads folder. This Python-based application leverages AI technology to automatically analyze, categorize, and organize your files while maintaining meaningful file names.
+
+### What It Does
+The application continuously monitors your downloads folder, automatically sorting files into appropriate category folders (like images, documents, archives, etc.). It intelligently cleans up file names by removing random strings, timestamps, and UUIDs while preserving the meaningful parts of the name. For example, a file named "document_report_abc123def_20250819.pdf" becomes simply "document_report.pdf".
+
+### Key Benefits
+- **Automated Organization**: No more manual sorting of files
+- **Clean Naming**: Files are renamed intelligently while preserving important information
+- **Visual Management**: Web-based dashboard for easy file management
+- **AI Integration**: Uses Gemini AI for smart file descriptions and categorization
+- **History Tracking**: Maintains a detailed log of all file operations
 
 ## ✨ Features
 - **Automatic File Organization:** Instantly sort files into category folders (images, documents, videos, etc.)
