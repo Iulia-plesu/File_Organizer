@@ -1,6 +1,5 @@
 # File Organizer
 
-## 🚀 Overview
 File Organizer is a smart, AI-powered tool to automatically sort, categorize, and describe your downloaded files. It moves files into organized folders, generates insightful summaries, and provides a beautiful web dashboard for easy management.
 
 ## ✨ Features
